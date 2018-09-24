@@ -20,7 +20,7 @@ const ColumnList = ({ columnTitle, tasks, addTask, updateTask }) => {
                     <li key={task.id}>
                     <input
                         type="checkbox"
-                        onChange={updateTask}
+                        onChange={(e) => updateTask(e.target, task)}
                         checked={columnTitle === 'Done'}
                     />
                     <span>{task.description}</span>

@@ -6,8 +6,24 @@ import ColumnList from './ColumnList';
 class App extends Component {
   	state = {
     	tasks: []
-  	}
-  
+	}
+
+	componentWillMount() {
+		console.log("Will mount...");
+		const toDoListTasks = window.localStorage.getItem('toDoListTasks') || '[]';
+		this.setState({ tasks: JSON.parse(toDoListTasks) });
+	}
+
+	updateLocalStorage(tasks) {
+		const stringfiedTasks = JSON.stringify(tasks);
+		window.localStorage.setItem('toDoListTasks', stringfiedTasks);
+	}
+
+	updateAndSave(tasks) {
+		this.updateLocalStorage(tasks)
+		this.setState({ tasks })
+	}
+	  
   	addTask(e){
 		e.preventDefault()
 		console.log("Adding task...");
@@ -20,32 +36,27 @@ class App extends Component {
 			status: 'To Do'
 		};
 		tasks = tasks.concat(newTask)
-		this.setState({ tasks })
+		this.updateAndSave(tasks)
   	}
 
-	updateTask(){
+	updateTask(target, task){
 		console.log("Updating task...")
+		let { tasks } = this.state;
+
+		tasks = tasks.filter(t => t.id !== task.id).concat({
+			...task,
+			status: target.checked ? 'Done' : 'To Do'
+		})
+		this.updateAndSave(tasks)
   	}
 
   	render() {
-    	const tasks = [
-			{
-				id: 1,
-				description: 'Estudar o módulo Fundamentos de React',
-				status: 'To Do'
-			},
-			{
-				id: 2,
-				description: 'Assistir à 1ª live do curso',
-				status: 'Doing'
-			}
-    	]
-		
+    	const { tasks } = this.state;		
 		const columns = [
 			{ title: 'To Do', tasks },
 			{ title: 'Doing', tasks },
 			{ title: 'Done', tasks }
-		]
+		];
 
 		return (
 			<div className="App">
@@ -63,7 +74,7 @@ class App extends Component {
 						columnTitle={column.title}
 						tasks={column.tasks}
 						addTask={(e) => this.addTask(e)}
-						updateTask={() => this.updateTask()}
+						updateTask={(target, task) => this.updateTask(target, task)}
 					/>
 					))}
 
